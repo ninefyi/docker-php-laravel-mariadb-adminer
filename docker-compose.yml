@@ -1,0 +1,39 @@
+version: '2'
+services:
+  db:
+    image: mariadb:5.5.60
+    container_name: "laravel-maria"
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: 123456
+    ports:
+      - "3306:3306"
+    restart: always
+    volumes:
+      - ./mysql/initdb/:/docker-entrypoint-initdb.d
+      - ./mysql/data:/var/lib/mysql
+  web:
+    build: .
+    container_name: "laravel-web"
+    links:
+      - db
+    ports:
+      - "8056:80"
+    restart: always      
+    volumes:
+      - ./www/:/var/www/html
+  adminer:
+    image: adminer
+    container_name: "laravel-adminer"
+    links: 
+      - db:db
+    ports:
+      - 8088:8080
+    restart: always
+    environment:
+      - PMA_ARBITRARY=0
+      - MYSQL_ROOT_PASSWORD=123456
+    volumes:
+      - ./sessions:/sessions
